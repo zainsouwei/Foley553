@@ -31,9 +31,8 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
   conda activate dcase_task7
   ```
 
-* Download the development dataset and move it to the root folder. The dataset path must be `./DCASEFoleySoundSynthesisDevSet`
-
-## Usage
+* Download the development dataset and move it to the root folder. The dataset path must be `./DCASEFoleySoundSynthesisDevSet` (in same folder as training script. dataset found here: https://drive.google.com/drive/folders/1GzfZvYVdbgDXnykOR93C3LCchPYBPh5I
+## Usage:
 
 1: (Stage 1) Train a multi-scale VQ-VAE to extract the Discrete T-F Representation (DTFR) of sound. The pre-trained model will be saved to `checkpoint/vqvae/`.
 
@@ -59,5 +58,6 @@ python train_pixelsnail.py --epoch 1500
 python inference.py --vqvae_checkpoint [VQ-VAE CHECKPOINT] --pixelsnail_checkpoint [PIXELSNAIL CHECKPOINT] --number_of_synthesized_sound_per_class [NUMBER OF SOUND SAMPLES]
 ```
 
-
+Update and push conda env to file for others to use to update their env:
+ conda env export --name dcase_task7 --file dcase_baseline_env.yml
 
