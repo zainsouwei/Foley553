@@ -1,0 +1,16 @@
+/home/zainsou/.local/lib/python3.6/site-packages/paramiko/transport.py:32: CryptographyDeprecationWarning: Python 3.6 is no longer supported by the Python core team. Therefore, support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.6.
+  from cryptography.hazmat.backends import default_backend
+(1, 80, 344)
+(43, 175)
+(43, 175)
+(43, 175)
+(43, 175)
+(2, 43, 175)
+(43, 175)
+(43, 175)
+Traceback (most recent call last):
+  File "synthesizecoeff.py", line 118, in <module>
+    main(input_wav_path, output_mel_path, output_wavelet_path, mel_img_path, mel_wavelet_img_path)
+  File "synthesizecoeff.py", line 93, in main
+    zoom_factors = (1, 80 / spec.shape[1], 344 / spec.shape[2])
+IndexError: tuple index out of range

@@ -100,7 +100,7 @@ def test(epoch, loader, model, optimizer, scheduler, device):
     return latent_diff, (mse_sum / mse_n)
 
 
-def main(args):
+def main(args,start_epoch, checkpoint_file=None):
     device = "cuda"
 
     train_file_list: List[dict] = get_dataset_filelist()
@@ -116,6 +116,8 @@ def main(args):
     print("training set size: " + str(len(train_set)))
 
     model = VQVAE().to(device)
+    if checkpoint_file is not None:
+        model.load_state_dict(torch.load(checkpoint_file))
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = None
@@ -128,7 +130,7 @@ def main(args):
             warmup_proportion=0.05,
         )
 
-    for i in range(args.epoch):
+    for i in range(start_epoch, args.epoch):
         train_latent_diff, train_average_loss = train(
             i, train_loader, model, optimizer, scheduler, device
         )
@@ -157,6 +159,8 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--sched", type=str)
+    parser.add_argument("--start_epoch", type=int, default=0)
+    parser.add_argument("--checkpoint_file", type=str, default=None)
 
     args = parser.parse_args()
 

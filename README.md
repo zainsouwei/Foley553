@@ -38,6 +38,7 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
 
 ```
 python train_vqvae.py --epoch 800
+python train_vqvae.py --epoch 800 --checkpoint_file /path/to/checkpoint.pt --start_epoch 10
 ```
 
 2: Extract DTFR for stage 2 training. 
