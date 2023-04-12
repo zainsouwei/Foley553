@@ -3,6 +3,8 @@ import librosa
 from scipy.io.wavfile import read as loadwav
 import numpy as np
 import datasets
+import pywt
+from scipy import ndimage
 
 import warnings
 
@@ -99,11 +101,26 @@ def mel_spectrogram_hifi(
     mel = torch.matmul(mel_basis[str(fmax) + '_' + str(audio.device)], spec)
     mel = spectral_normalize_torch(mel).numpy()
 
-    # pad_size = math.ceil(mel.shape[2] / 8) * 8 - mel.shape[2]
-    #
-    # mel = np.pad(mel, ((0, 0), (0, 0), (0, pad_size)))
+    #################################################
+    ######### Our Changes Below This Line ###########
 
-    return mel
+    # peform 2d DWT
+    mother = 'sym4'
+    wavelet_coeff = pywt.dwt2(mel[0], mother)
+    wavelet_coeff = wavelet_coeff[0]
+    #wavelet_coeff = wavelet_coeff[1][0]
+    #wavelet_coeff = wavelet_coeff[1][1]
+    #wavelet_coeff = wavelet_coeff[1][2]
+
+    # add in the first dimension i.e. (1, x, y)
+    wavelet_coeff = np.expand_dims(wavelet_coeff, axis=0)
+    # Compute zoom factors for each dimension
+    zoom_factors = (1, mel.shape[1] / wavelet_coeff.shape[1], mel.shape[2] / wavelet_coeff.shape[2])
+    # Apply the zoom function
+    wavelet_coeff_resized = ndimage.zoom(wavelet_coeff, zoom_factors, order=1)
+
+    # return wavelet coefficients
+    return wavelet_coeff_resized 
 
 
 """ Mel-Spectrogram extraction code from HiFi-GAN meldataset.py"""
