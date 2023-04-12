@@ -114,13 +114,13 @@ def mel_spectrogram_hifi(
 
     # add in the first dimension i.e. (1, x, y)
     wavelet_coeff = np.expand_dims(wavelet_coeff, axis=0)
-    # Compute zoom factors for each dimension
-    zoom_factors = (1, mel.shape[1] / wavelet_coeff.shape[1], mel.shape[2] / wavelet_coeff.shape[2])
-    # Apply the zoom function
-    wavelet_coeff_resized = ndimage.zoom(wavelet_coeff, zoom_factors, order=1)
+    # # Compute zoom factors for each dimension
+    # zoom_factors = (1, mel.shape[1] / wavelet_coeff.shape[1], mel.shape[2] / wavelet_coeff.shape[2])
+    # # Apply the zoom function
+    # wavelet_coeff_resized = ndimage.zoom(wavelet_coeff, zoom_factors, order=1)
 
     # return wavelet coefficients
-    return wavelet_coeff_resized 
+    return wavelet_coeff 
 
 
 """ Mel-Spectrogram extraction code from HiFi-GAN meldataset.py"""
