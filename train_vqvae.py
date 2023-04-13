@@ -34,6 +34,12 @@ def train(epoch, loader, model, optimizer, scheduler, device):
         img = img.to(device)
 
         out, latent_loss = model(img)
+        #################################################
+        ######### Our Changes Below This Line ###########
+        print("img shape:", img.shape)
+        print("out shape:", out.shape)
+        out = torch.nn.functional.interpolate(out, size=img.shape[2:], mode='bilinear', align_corners=False)
+        #################################################
         recon_loss = criterion(out, img)
         latent_loss = latent_loss.mean()
         loss = recon_loss + latent_loss_weight * latent_loss
@@ -100,7 +106,7 @@ def test(epoch, loader, model, optimizer, scheduler, device):
     return latent_diff, (mse_sum / mse_n)
 
 
-def main(args,start_epoch, checkpoint_file=None):
+def main(args):
     device = "cuda"
 
     train_file_list: List[dict] = get_dataset_filelist()
@@ -114,10 +120,13 @@ def main(args,start_epoch, checkpoint_file=None):
     )
 
     print("training set size: " + str(len(train_set)))
-
+    
+    #################################################
+    ######### Our Changes Below This Line ###########
     model = VQVAE().to(device)
-    if checkpoint_file is not None:
-        model.load_state_dict(torch.load(checkpoint_file))
+    if args.checkpoint_file is not None:
+        model.load_state_dict(torch.load(args.checkpoint_file, map_location=device))
+    #################################################
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = None
@@ -130,7 +139,7 @@ def main(args,start_epoch, checkpoint_file=None):
             warmup_proportion=0.05,
         )
 
-    for i in range(start_epoch, args.epoch):
+    for i in range(args.start_epoch, args.epoch):
         train_latent_diff, train_average_loss = train(
             i, train_loader, model, optimizer, scheduler, device
         )
@@ -159,8 +168,11 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--sched", type=str)
+    #################################################
+    ######### Our Changes Below This Line ###########
     parser.add_argument("--start_epoch", type=int, default=0)
     parser.add_argument("--checkpoint_file", type=str, default=None)
+    #################################################
 
     args = parser.parse_args()
 
