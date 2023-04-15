@@ -11,6 +11,7 @@ import datetime
 import torch
 from tqdm import tqdm
 import soundfile as sf
+from scipy import ndimage
 
 from vqvae import VQVAE
 from pixelsnail import PixelSNAIL
@@ -78,7 +79,7 @@ class BaseLineModel(SoundSynthesisModel):
     ) -> None:
         super().__init__()
         self.pixel_snail = PixelSNAIL(
-            [20, 86],
+            [10, 43],
             512,
             256,
             5,
@@ -111,7 +112,8 @@ class BaseLineModel(SoundSynthesisModel):
     def synthesize_sound(self, class_id: str, number_of_sounds: int) -> List[ndarray]:
         audio_list: List[ndarray] = list()
 
-        feature_shape: list = [20, 86]
+        #feature_shape: list = [20, 86]
+        feature_shape: list = [10, 43]
         vq_token: Tensor = torch.zeros(
             number_of_sounds, *feature_shape, dtype=torch.int64
         ).cuda()
@@ -130,6 +132,16 @@ class BaseLineModel(SoundSynthesisModel):
                 vq_token[:, i, j] = torch.multinomial(prob, 1).squeeze(-1)
 
         pred_mel = self.vqvae.decode_code(vq_token).detach()
+
+        #################################################
+        ######### Our Changes Below This Line ###########
+        pred_mel = pred_mel.detach().cpu()
+        print(pred_mel.shape)
+        zoom_factors = (1, 1, 80 /pred_mel.shape[2], 344 / pred_mel.shape[3])
+        # Apply the zoom function
+        pred_mel = ndimage.zoom(pred_mel, zoom_factors, order=1)
+        #################################################
+
         for j, mel in enumerate(pred_mel):
             audio_list.append(self.hifi_gan.generate_audio_by_hifi_gan(mel))
         return audio_list
